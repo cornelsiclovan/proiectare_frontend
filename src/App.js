@@ -1,24 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
+import Diagram, { createSchema, useSchema } from "beautiful-react-diagrams";
+import "beautiful-react-diagrams/styles.css";
+import React, { useEffect, useState } from "react";
+import { Button } from "beautiful-react-ui";
+
+import UncontrolledDiagram from "./components/diagram/UncontrolledDiagram";
+import Legend from "./components/legend/Legend";
+import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import RootLayout from "./pages/Root";
+import DiagramLayout, {loader as typesLoader} from "./pages/Diagram";
+
+const router = createBrowserRouter([
+  {
+    path: '/',
+    element: <RootLayout />,
+    id: "root",
+    children: [
+      {
+        index: true,
+        element: <DiagramLayout/>,
+        loader: typesLoader,
+        id: "types"
+      }
+    ]
+  }
+]);
+
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    // <div style={{ display: "flex" }}>
+    //   <UncontrolledDiagram />
+    // </div>
+    <RouterProvider router={router}></RouterProvider>
   );
 }
 

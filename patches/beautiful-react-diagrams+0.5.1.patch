@@ -1,0 +1,34 @@
+diff --git a/node_modules/beautiful-react-diagrams/esm/Diagram/Diagram.js b/node_modules/beautiful-react-diagrams/esm/Diagram/Diagram.js
+index 3664f94..2fca176 100644
+--- a/node_modules/beautiful-react-diagrams/esm/Diagram/Diagram.js
++++ b/node_modules/beautiful-react-diagrams/esm/Diagram/Diagram.js
+@@ -4,7 +4,7 @@ import { objectWithoutProperties as _objectWithoutProperties, slicedToArray as _
+ import PropTypes from 'prop-types';
+ import DiagramCanvas from './DiagramCanvas/DiagramCanvas.js';
+ import { SchemaType } from '../shared/Types.js';
+-import NodesCanvas from './NodesCanvas/NodesCanvas.js';
++import NodesCanvas$1 from './NodesCanvas/NodesCanvas.js';
+ import LinksCanvas from './LinksCanvas/LinksCanvas.js';
+ 
+ var Diagram = function Diagram(props) {
+@@ -86,7 +86,7 @@ var Diagram = function Diagram(props) {
+   return React.createElement(DiagramCanvas, _extends({
+     portRefs: portRefs,
+     nodeRefs: nodeRefs
+-  }, rest), React.createElement(NodesCanvas, {
++  }, rest), React.createElement(NodesCanvas$1, {
+     nodes: schema.nodes,
+     onChange: onNodesChange,
+     onNodeRegister: onNodeRegister,
+diff --git a/node_modules/beautiful-react-diagrams/hooks/useSchema/schemaReducer.js b/node_modules/beautiful-react-diagrams/hooks/useSchema/schemaReducer.js
+index fd9b41c..da5dfc9 100644
+--- a/node_modules/beautiful-react-diagrams/hooks/useSchema/schemaReducer.js
++++ b/node_modules/beautiful-react-diagrams/hooks/useSchema/schemaReducer.js
+@@ -20,6 +20,7 @@ var schemaReducer = function schemaReducer(state, action) {
+       };
+   
+     case actionTypes.ON_NODE_ADD:
++      console.log("on node add");
+       if (state.nodes) {
+         state.nodes.push(action.payload.node);
+       }

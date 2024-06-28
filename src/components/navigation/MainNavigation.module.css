@@ -1,0 +1,33 @@
+.header {
+    padding: 0.5rem;
+    background-color: #003b95;
+  }
+  
+  .list {
+    display: flex;
+    gap: 1rem;
+    list-style-type: none;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .list a {
+    text-decoration: none;
+    color: var(--color-gray-300);
+  }
+  
+  .list a:hover,
+  .list a.active {
+    color: var(--color-gray-100);
+  }
+  
+  button {
+    font: inherit;
+    cursor: pointer;
+    padding: 0.5rem 1.5rem;
+    border-radius: 4px;
+    background-color: transparent;
+    color: blueviolet;
+    border: none;
+  }
+  
