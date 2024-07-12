@@ -6,6 +6,7 @@ import Diagram, { createSchema, useSchema } from "beautiful-react-diagrams";
 
 import Background from "./casa.png";
 import Legend from "../legend/Legend";
+import { getAuthToken } from "../../util/auth";
 
 const categories = ["sensors", "motors", "microcontroller"];
 const colors = ["red", "green", "yellow"];
@@ -13,6 +14,7 @@ const colors = ["red", "green", "yellow"];
 let i = 0;
 let x = 0;
 let y = 0;
+const token = getAuthToken();
 
 const UncontrolledDiagram = ({ types }) => {
   const [isAddClicked, setIsAddClicked] = useState(false);
@@ -30,11 +32,10 @@ const UncontrolledDiagram = ({ types }) => {
 
   const deleteNodeFromSchema = (id, fromOffer = false) => {
     const nodeToRemove = schema.nodes.find((node) => node.id === id);
-    
-    if(nodeToRemove) {
+
+    if (nodeToRemove) {
       removeNode(nodeToRemove);
     }
-   
 
     if (!fromOffer) {
       let nodesToRemove = nodes;
@@ -56,14 +57,28 @@ const UncontrolledDiagram = ({ types }) => {
   };
 
   const getCategoriesByType = async (type) => {
-    const response = await fetch("http://localhost:8000/categories/" + type.id);
+    const response = await fetch(
+      "http://localhost:8000/categories/" + type.id,
+      {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      }
+    );
 
     const data = await response.json();
     setCategories(data.categories);
 
-    if (data.categories.length === 0) {
+    if (data && data.categories && data.categories.length === 0) {
       const response = await fetch(
-        "http://localhost:8000/products?type=" + type.name
+        "http://localhost:8000/products?type=" + type.name,
+        {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        }
       );
 
       const data = await response.json();
@@ -73,7 +88,13 @@ const UncontrolledDiagram = ({ types }) => {
 
   const getProductsByCategory = async (category) => {
     const response = await fetch(
-      "http://localhost:8000/products?category=" + category.name
+      "http://localhost:8000/products?category=" + category.name,
+      {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      }
     );
 
     const data = await response.json();
@@ -165,6 +186,7 @@ const UncontrolledDiagram = ({ types }) => {
             </>
           ))}
         {isAddClicked &&
+          categories &&
           categories.length != 0 &&
           categories.map((category) => (
             <>
@@ -181,6 +203,7 @@ const UncontrolledDiagram = ({ types }) => {
             </>
           ))}
         {isAddClicked &&
+          products &&
           products.length != 0 &&
           products.map((product) => (
             <>

@@ -1,13 +1,11 @@
 import { Suspense } from "react";
 import {
   Await,
-  defer,
   json,
   redirect,
-  useLoaderData,
-  useRouteLoaderData,
 } from "react-router-dom";
 import UncontrolledDiagram from "../components/diagram/UncontrolledDiagram";
+import { getAuthToken } from "../util/auth";
 
 const DiagramLayout = () => {
   const types = loader() || {};
@@ -24,7 +22,14 @@ const DiagramLayout = () => {
 export default DiagramLayout;
 
 const loadTypes = async () => {
-  const response = await fetch("http://localhost:8000/types");
+  const token = getAuthToken();
+  
+  const response = await fetch("http://localhost:8000/types", {
+    method: "GET",
+    headers: {
+      Authorization: "Bearer " + token,
+    },
+  });
 
   if (!response.ok) {
     throw json({ message: "Could not fetch product types" }, { status: 500 });
@@ -38,6 +43,14 @@ const loadTypes = async () => {
 };
 
 export const loader = async () => {
+
+  console.log("loader")
+  const token = getAuthToken();
+
+  if (!token) {
+    return redirect("/auth?mode=login");
+  }
+
   return {
     types: await loadTypes(),
   };

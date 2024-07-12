@@ -2,6 +2,7 @@ import classes from "./MainNavigation.module.css";
 import { Form, NavLink, useRouteLoaderData } from "react-router-dom";
 
 const MainNavigation = () => {
+  const { token } = useRouteLoaderData("root");
   return (
     <header className={classes.header}>
       <nav style={{ maxWidth: "100%" }}>
@@ -22,18 +23,51 @@ const MainNavigation = () => {
               </NavLink>
             </div>
           </li>
-          <li>
-            <div style={{ display: "flex", gap: "1rem" }}>
+          {token && (
+            <li>
+              <div style={{ display: "flex", gap: "1rem" }}>
+                <NavLink
+                  to="/"
+                  className={({ isActive }) =>
+                    isActive ? classes.active : undefined
+                  }
+                  style={{
+                    backgroundColor: "green",
+
+                    paddingRight: "10px",
+                    paddingLeft: "10px",
+                    borderRadius: "2px",
+                  }}
+                >
+                  Load
+                </NavLink>
+                <NavLink
+                  className={({ isActive }) =>
+                    isActive ? classes.active : undefined
+                  }
+                  to="/management"
+                >
+                  Management
+                </NavLink>
+              </div>
+            </li>
+          )}
+          <li style={{ marginRight: "100px" }}>
+            {!token && (
               <NavLink
-                to="/"
+                to="/auth?mode=login"
                 className={({ isActive }) =>
                   isActive ? classes.active : undefined
                 }
-                style={{backgroundColor: "green", marginRight: "50px", paddingRight: "10px", paddingLeft: "10px", borderRadius: "2px"}}
               >
-                Load
+                Login
               </NavLink>
-            </div>
+            )}
+            {token && (
+              <Form action="/logout" method="post">
+                <button style={{ color: "white" }}>Logout</button>
+              </Form>
+            )}
           </li>
         </ul>
       </nav>
