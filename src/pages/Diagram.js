@@ -3,13 +3,16 @@ import {
   Await,
   json,
   redirect,
+  useSubmit,
 } from "react-router-dom";
 import UncontrolledDiagram from "../components/diagram/UncontrolledDiagram";
 import { getAuthToken } from "../util/auth";
 
 const DiagramLayout = () => {
+  const token = getAuthToken();
+ 
   const types = loader() || {};
-  
+
   return (
     <Suspense fallback={<p style={{ textAlign: "center" }}>Loading ...</p>}>
       <Await resolve={types}>
@@ -23,6 +26,8 @@ export default DiagramLayout;
 
 const loadTypes = async () => {
   const token = getAuthToken();
+
+  
   
   const response = await fetch("http://localhost:8000/types", {
     method: "GET",
@@ -43,11 +48,9 @@ const loadTypes = async () => {
 };
 
 export const loader = async () => {
-
-  console.log("loader")
   const token = getAuthToken();
 
-  if (!token) {
+  if (!token || token === "EXPIRED") {
     return redirect("/auth?mode=login");
   }
 

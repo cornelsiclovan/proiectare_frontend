@@ -2,7 +2,13 @@ import { useState } from "react";
 import { Form } from "react-router-dom";
 import { getAuthToken } from "../../util/auth";
 
-const ProjectList = ({ projects, addArea, selectProjectId, areaErrors, setAreaErrors }) => {
+const ProjectList = ({
+  projects,
+  addArea,
+  selectProjectId,
+  areaErrors,
+  setAreaErrors,
+}) => {
   const [addNew, setAddNew] = useState(false);
   const [newProject, setNewProject] = useState("");
   const [error, setError] = useState(false);
@@ -11,10 +17,13 @@ const ProjectList = ({ projects, addArea, selectProjectId, areaErrors, setAreaEr
   const [selectedProject, setSelectedProject] = useState("");
   const [myArea, setMyArea] = useState("");
   const [myMap, setMyMap] = useState(null);
-
+  const [editProject, setEditProject] = useState(false);
+  const [projectToEdit, setProjectToEdit] = useState(null);
+  const [editProjectName, setEditProjectName] = useState("");
 
   const onAddAreaClick = (event) => {
     setAddNewArea(!addNewArea);
+    setEditProject(false);
   };
 
   const onAdNewClick = () => {
@@ -74,8 +83,16 @@ const ProjectList = ({ projects, addArea, selectProjectId, areaErrors, setAreaEr
       return +prj.id !== +event.target.id;
     });
 
-    setMyProjects(newProjects);
-    setError("");
+    if(!response.ok) {
+      const data = await response.json();
+      console.log(data);
+      setError(data.message);
+    }else {
+      setMyProjects(newProjects);
+      setError("");
+    }
+
+    
   };
 
   const selectProject = (id) => {
@@ -86,18 +103,67 @@ const ProjectList = ({ projects, addArea, selectProjectId, areaErrors, setAreaEr
   const onChangeAreaHandler = async (event) => {
     setMyArea(event.target.value);
   };
-
   const addAreaHandler = async () => {
-    addArea(myArea, selectedProject, myMap);   
-    setMyArea(""); 
+    addArea(myArea, selectedProject, myMap);
+    setMyArea("");
     const myFile = document.getElementById("map");
     myFile.value = "";
-    setAreaErrors([])
-};
+    setAreaErrors([]);
+  };
 
   const onChangeMapHandler = (event) => {
     setMyMap(event.target.files[0]);
-  }
+  };
+
+  const editProjectHandler = (id, name) => {
+    setAddNewArea(false)
+    setEditProject(!editProject);
+    setProjectToEdit(id);
+    setEditProjectName(name)
+  };
+
+  const onChangeEditProjectInput = (event) => {
+    setEditProjectName(event.target.value);
+  };
+
+  const modifyProject = async () => {
+    const token = getAuthToken();
+
+    const response = await fetch("http://localhost:8000/projects/" + projectToEdit, {
+      method: "PATCH",
+      body: JSON.stringify({
+        name: editProjectName,
+      }),
+      headers: {
+        Authorization: "Bearer " + token,
+        "Content-Type": "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      setError(data.message + " " + data.data[0].msg);
+    } else {
+      const data = await response.json();
+
+      myProjects.map(prj => {
+        if(prj.id === projectToEdit) {
+          console.log("TEst")
+          prj.name = editProjectName
+        }
+      })
+
+      const newProjects = [...myProjects];
+      
+      
+      //newProjects.push(data.project);
+
+      setMyProjects(newProjects);
+      setNewProject("");
+      setError("");
+    }
+  };
+
   return (
     <>
       <ul style={{ listStyleType: "none" }}>
@@ -133,7 +199,12 @@ const ProjectList = ({ projects, addArea, selectProjectId, areaErrors, setAreaEr
               >
                 delete
               </button>
-              <button style={{ backgroundColor: "green", color: "white" }}>
+              <button
+                style={{ backgroundColor: "green", color: "white" }}
+                onClick={() => {
+                  editProjectHandler(project.id, project.name);
+                }}
+              >
                 Edit
               </button>{" "}
               <button
@@ -150,8 +221,22 @@ const ProjectList = ({ projects, addArea, selectProjectId, areaErrors, setAreaEr
                     value={myArea}
                     onChange={onChangeAreaHandler}
                   ></input>{" "}
-                  <input type="file" id="map" onChange={onChangeMapHandler}></input>{" "}
+                  <input
+                    type="file"
+                    id="map"
+                    onChange={onChangeMapHandler}
+                  ></input>{" "}
                   <button onClick={addAreaHandler}>Add</button>
+                </>
+              )}
+              {editProject && project.id === projectToEdit && (
+                <>
+                  <input
+                    type="text"
+                    value={editProjectName}
+                    onChange={onChangeEditProjectInput}
+                  ></input>{" "}
+                  <button onClick={modifyProject}>Modify</button>
                 </>
               )}
             </li>

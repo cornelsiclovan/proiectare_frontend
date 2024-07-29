@@ -46,16 +46,61 @@ const ProjectsPage = () => {
     });
 
     if (!response.ok) {
-
       const data = await response.json();
       setAreaErrors(data.message + " " + data.data[0].msg);
     } else {
       const data = await response.json();
 
       const myAreas = [...areas];
+      
+      
       myAreas.push(data.area);
 
-      setAreas(myAreas)
+      setAreas(myAreas);
+
+      return data;
+    }
+  };
+
+  const editArea = async (myArea, selectedProject, map, areaID) => {
+    const token = getAuthToken();
+    const formData = new FormData();
+
+    formData.append("name", myArea);
+    formData.append("projectId", selectedProject);
+  
+    if (map) {
+      
+      formData.append("map", map);
+    }
+
+    const response = await fetch("http://localhost:8000/projects/area/"+areaID, {
+      method: "PATCH",
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const data = await response.json();
+      console.log(data)
+      setAreaErrors(data.message);
+    } else {
+      const data = await response.json();
+
+      const myAreas = [...areas];
+
+      myAreas.map(area => {
+        if(area.id === areaID) {
+          area.name = data.area.name;
+          area.image = data.area.image;
+        }
+      })
+
+      //myAreas.push(data.area);
+
+      setAreas(myAreas);
 
       return data;
     }
@@ -79,7 +124,12 @@ const ProjectsPage = () => {
         </Suspense>
       </div>
       <div style={{ flex: 1 }}>
-        <AreaList areas={areas} areaErrors={areaErrors} setAreas={setAreas} />
+        <AreaList
+          areas={areas}
+          areaErrors={areaErrors}
+          setAreas={setAreas}
+          editArea={editArea}
+        />
       </div>
     </div>
   );

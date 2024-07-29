@@ -75,7 +75,7 @@ const router = createBrowserRouter([
   },
 ]);
 
-function App() {
+const  App = () => {
   return (
     // <div style={{ display: "flex" }}>
     //   <UncontrolledDiagram />

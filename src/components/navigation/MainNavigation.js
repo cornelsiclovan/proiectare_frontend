@@ -26,7 +26,7 @@ const MainNavigation = () => {
           {token && (
             <li>
               <div style={{ display: "flex", gap: "1rem" }}>
-                <NavLink
+                {/* <NavLink
                   to="/"
                   className={({ isActive }) =>
                     isActive ? classes.active : undefined
@@ -40,7 +40,7 @@ const MainNavigation = () => {
                   }}
                 >
                   Load
-                </NavLink>
+                </NavLink> */}
                 <NavLink
                   className={({ isActive }) =>
                     isActive ? classes.active : undefined

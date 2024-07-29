@@ -13,9 +13,11 @@ export const getAuthToken = () => {
   const token = localStorage.getItem("token");
   const tokenDuration = getTokenDuration();
 
+
   if (!token) {
     return null;
   }
+
 
   if (tokenDuration < 0) {
     
@@ -35,6 +37,7 @@ export const getUserId = () => {
 };
 
 export const tokenLoader = () => {
+
   return {
     token: getAuthToken(),
   };
