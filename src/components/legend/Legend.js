@@ -1,7 +1,7 @@
 import { Button } from "beautiful-react-ui";
 import { useState } from "react";
 
-const Legend = ({ nodes, cleanNodes }) => {
+const Legend = ({ nodes, cleanNodes, saveArea }) => {
   const [total, setTotal] = useState(0);
 
   let curentTotal = 0
@@ -23,7 +23,7 @@ const Legend = ({ nodes, cleanNodes }) => {
   };
 
   const save = async () => {
-    console.log("save");
+    saveArea();
   };
   return (
     <>

@@ -14,7 +14,7 @@ const CustomRender = ({ id, content, data, inputs, outputs }) => {
   return (
     <div style={{ background: id.split("-")[1] }}>
       <div style={{ textAlign: "right" }}>
-        <button onClick={() => data.onClick(id)}>x</button>
+        <button style={{padding: "5px"}}  onClick={() => data.onClick(id)}>x</button>
       </div>
       <div role="button" style={{ padding: "5px" }}>
         

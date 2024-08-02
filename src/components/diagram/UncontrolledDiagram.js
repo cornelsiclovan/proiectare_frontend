@@ -30,16 +30,91 @@ const UncontrolledDiagram = ({ types }) => {
   const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
   const [projectAreas, setProjectAreas] = useState([]);
+  const [workingAreaId, setWorkingAreaId] = useState(
+    localStorage.getItem("workingAreaId")
+      ? localStorage.getItem("workingAreaId")
+      : null
+  );
 
   const initalSchema = createSchema({
     nodes: [],
   });
+
   const [schema, { onChange, addNode, removeNode }] = useSchema(initalSchema);
 
-  console.log(schema.nodes);
+  //console.log(schema.nodes);
+
+  const myProducts = [];
+
+  useEffect(() => {
+
+    const fetchCurrentWorkingArea = async () => {
+      
+      schema.nodes.map((node) => {
+        removeNode(node);
+      });
+
+      const token = getAuthToken();
+
+      const response = await fetch(
+        "http://localhost:8000/prodsToAreas/" + workingAreaId,
+        {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        }
+      );
+
+      const data = await response.json();
+
+      let j = 0;
+      data.productsInArea.map((p) => {
+        let prod = {};
+        prod.id = p.product_id;
+        prod.color = p.node_id.split("-")[1];
+        prod.name = p.content.split("-")[1];
+        prod.x = p.orizontal;
+        prod.y = p.vertical;
+        prod.node_id = p.node_id;
+        addNewNode(prod, true);
+        j = +prod.node_id.split("-")[2] + 1;
+        myProducts.push(p);
+      });
+      i = j;
+    };
+
+    const fetchArea = async () => {
+    
+      const token = getAuthToken();
+      try {
+        const response = await fetch(
+          "http://localhost:8000/areas/" + workingAreaId,
+          {
+            method: "GET",
+            headers: {
+              Authorization: "Bearer " + token,
+            },
+          }
+        );
+        const data = await response.json();
+        //console.log(data);
+        setProjectArea(data.area);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchCurrentWorkingArea();
+
+    if (workingAreaId) {
+      fetchArea();
+    }
+  }, [workingAreaId]);
 
   useEffect(() => {
     if (modalOpen && !selectedProject) {
+      
       const fetchProjects = async () => {
         const token = getAuthToken();
         const response = await fetch("http://localhost:8000/projects", {
@@ -55,26 +130,28 @@ const UncontrolledDiagram = ({ types }) => {
 
       fetchProjects();
     } else if (selectedProject) {
+      
       const fetchAreas = async () => {
         const token = getAuthToken();
-        const response = await fetch("http://localhost:8000/projects/" + selectedProject + "/areas", {
-          method: "GET",
-          headers: {
-            Authorization: "Bearer " + token,
-          },
-        });
-
-       
+        const response = await fetch(
+          "http://localhost:8000/projects/" + selectedProject + "/areas",
+          {
+            method: "GET",
+            headers: {
+              Authorization: "Bearer " + token,
+            },
+          }
+        );
 
         const data = await response.json();
-        console.log(data.areas)
+
         setProjectAreas(data.areas);
-      }
+      };
 
       fetchAreas();
     } else {
       setProjects([]);
-      setProjectAreas([])
+      setProjectAreas([]);
       console.log("close");
     }
   }, [modalOpen, selectedProject]);
@@ -84,8 +161,31 @@ const UncontrolledDiagram = ({ types }) => {
     navigate("/");
   };
 
-  const deleteNodeFromSchema = (id, fromOffer = false) => {
+  const deleteNodeFromSchema = async (id, fromOffer = false) => {
+    const token = getAuthToken();
     const nodeToRemove = schema.nodes.find((node) => node.id === id);
+
+    console.log(myProducts);
+    console.log(id);
+
+    if (myProducts.length > 0) {
+      const prodToRemove = myProducts.filter((prod) => prod.node_id === id);
+
+      console.log(prodToRemove[0].id);
+
+      const response = await fetch(
+        "http://localhost:8000/prodsToAreas/" + prodToRemove[0].id,
+        {
+          method: "DELETE",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        }
+      );
+
+      const data = await response.json();
+      console.log(data);
+    }
 
     if (nodeToRemove) {
       removeNode(nodeToRemove);
@@ -158,11 +258,18 @@ const UncontrolledDiagram = ({ types }) => {
     setProducts(data.products);
   };
 
-  const addNewNode = (type) => {
+  const addNewNode = (type, oldNode) => {
+    let coordX = type.x || x + 100;
+    let coordY = type.y || y;
+    let node_identifier = `node -${type.color}-${i}`;
+
+    if (oldNode) {
+      node_identifier = type.node_id;
+    }
     const nextNode = {
-      id: `node -${type.color}-${i}`,
-      content: `${type.name}`,
-      coordinates: [x + 100, y],
+      id: node_identifier,
+      content: `${type.id}-${type.name}`,
+      coordinates: [coordX, coordY],
       render: CustomRender,
       data: { onClick: deleteNodeFromSchema },
       inputs: [{ id: `port-${i}` }],
@@ -215,6 +322,33 @@ const UncontrolledDiagram = ({ types }) => {
     setModalOpen(true);
   };
 
+  const selectArea = (area) => {
+    setWorkingAreaId(area.id);
+    localStorage.setItem("workingAreaId", area.id);
+    setProjectArea(area);
+  };
+
+  const saveArea = async () => {
+    const token = getAuthToken();
+    const sendBody = { products: schema.nodes };
+
+    console.log(projectArea.id);
+
+    const response = await fetch(
+      "http://localhost:8000/prodsToAreas/" + projectArea.id,
+      {
+        method: "POST",
+        headers: {
+          Authorization: "Bearer " + token,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(sendBody),
+      }
+    );
+
+    let data = await response.json();
+  };
+
   return (
     <>
       <Modal isOpen={modalOpen} onRequestClose={closeModal}>
@@ -222,27 +356,47 @@ const UncontrolledDiagram = ({ types }) => {
         <button style={{ backgroundColor: "red" }} onClick={closeModal}>
           x
         </button>
-        <ul>
-          <h1>Projects</h1>
-          {projects &&
-            projects.map((project) => (
-              <li>
-                <button
-                  onClick={() => {
-                    setSelectedProject(project.id);
-                  }}
-                >
-                  {project.name}
-                </button>
-              </li>
-            ))}
+        <div style={{ display: "flex" }}>
+          <ul>
+            <h1>Projects</h1>
+            {projects &&
+              projects.map((project) => (
+                <li>
+                  <button
+                    onClick={() => {
+                      setSelectedProject(project.id);
+                    }}
+                  >
+                    {project.name}
+                  </button>
+                </li>
+              ))}
             <h1>Areas</h1>
             {projectAreas &&
-              projectAreas.map(pa => 
-                <li>{pa.name}</li>
-              )
-              }
-        </ul>
+              projectAreas.map((pa) => (
+                <li>
+                  <button
+                    onClick={() => {
+                      selectArea(pa);
+                    }}
+                  >
+                    {pa.name}
+                  </button>
+                </li>
+              ))}
+            <button
+              style={{ color: "white", backgroundColor: "green" }}
+              onClick={() => {
+                setModalOpen(false);
+              }}
+            >
+              ok
+            </button>
+          </ul>
+          {projectArea && (
+            <img src={`http://localhost:8000/${projectArea.image}`}></img>
+          )}
+        </div>
       </Modal>
       <div style={{ display: "flex" }}>
         <div>
@@ -258,15 +412,17 @@ const UncontrolledDiagram = ({ types }) => {
               Load Project Area
             </button>
           </div>
-          <Button
-            color="primary"
-            icon="plus"
-            onClick={() => {
-              setIsAddClicked(!isAddClicked);
-            }}
-          >
-            Add new node
-          </Button>{" "}
+          {projectArea && (
+            <Button
+              color="primary"
+              icon="plus"
+              onClick={() => {
+                setIsAddClicked(!isAddClicked);
+              }}
+            >
+              Add new node
+            </Button>
+          )}{" "}
           <br />
           {isAddClicked &&
             types &&
@@ -324,8 +480,9 @@ const UncontrolledDiagram = ({ types }) => {
           {projectArea && (
             <Diagram
               style={{
-                backgroundImage: `url("${Background}")`,
+                backgroundImage: `url("${`http://localhost:8000/${projectArea.image}`}")`,
                 backgroundRepeat: "no-repeat",
+                backgroundSize: "100% 100%",
               }}
               schema={schema}
               onChange={onChange}
@@ -352,7 +509,7 @@ const UncontrolledDiagram = ({ types }) => {
           )}
         </div>
 
-        <Legend nodes={nodes} cleanNodes={onCleanNodes} />
+        <Legend nodes={nodes} cleanNodes={onCleanNodes} saveArea={saveArea} />
       </div>
     </>
   );
