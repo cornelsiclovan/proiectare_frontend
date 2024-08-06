@@ -1,6 +1,5 @@
 import CustomRender from "./CustomRender";
 import React, { useEffect, useState } from "react";
-import { Button } from "beautiful-react-ui";
 import Modal from "react-modal";
 
 import Diagram, { createSchema, useSchema } from "beautiful-react-diagrams";
@@ -20,6 +19,9 @@ let y = 0;
 const UncontrolledDiagram = ({ types }) => {
   const navigate = useNavigate();
 
+  console.log("test")
+  
+
   const [isAddClicked, setIsAddClicked] = useState(false);
   const [nodes, setNodes] = useState([]);
   const [nodesForCleanup, setNodesForCleanup] = useState([]);
@@ -36,13 +38,16 @@ const UncontrolledDiagram = ({ types }) => {
       : null
   );
 
-  const initalSchema = createSchema({
+ 
+  const initalSchema = createSchema({  
     nodes: [],
   });
 
+  console.log(modalOpen)
+
   const [schema, { onChange, addNode, removeNode }] = useSchema(initalSchema);
 
-  //console.log(schema.nodes);
+  const [nodesCount, setNodesCount] = useState(schema.nodes.length);
 
   const myProducts = [];
 
@@ -51,7 +56,8 @@ const UncontrolledDiagram = ({ types }) => {
     const fetchCurrentWorkingArea = async () => {
       
       schema.nodes.map((node) => {
-        removeNode(node);
+        deleteNodeFromSchema(node.id);
+        //removeNode(node);
       });
 
       const token = getAuthToken();
@@ -77,6 +83,7 @@ const UncontrolledDiagram = ({ types }) => {
         prod.x = p.orizontal;
         prod.y = p.vertical;
         prod.node_id = p.node_id;
+        prod.list_price=p.list_price;
         addNewNode(prod, true);
         j = +prod.node_id.split("-")[2] + 1;
         myProducts.push(p);
@@ -98,7 +105,7 @@ const UncontrolledDiagram = ({ types }) => {
           }
         );
         const data = await response.json();
-        //console.log(data);
+      
         setProjectArea(data.area);
       } catch (error) {
         console.log(error);
@@ -152,7 +159,7 @@ const UncontrolledDiagram = ({ types }) => {
     } else {
       setProjects([]);
       setProjectAreas([]);
-      console.log("close");
+
     }
   }, [modalOpen, selectedProject]);
 
@@ -165,13 +172,10 @@ const UncontrolledDiagram = ({ types }) => {
     const token = getAuthToken();
     const nodeToRemove = schema.nodes.find((node) => node.id === id);
 
-    console.log(myProducts);
-    console.log(id);
-
     if (myProducts.length > 0) {
       const prodToRemove = myProducts.filter((prod) => prod.node_id === id);
 
-      console.log(prodToRemove[0].id);
+
 
       const response = await fetch(
         "http://localhost:8000/prodsToAreas/" + prodToRemove[0].id,
@@ -184,7 +188,6 @@ const UncontrolledDiagram = ({ types }) => {
       );
 
       const data = await response.json();
-      console.log(data);
     }
 
     if (nodeToRemove) {
@@ -192,19 +195,25 @@ const UncontrolledDiagram = ({ types }) => {
     }
 
     if (!fromOffer) {
-      let nodesToRemove = nodes;
+      let nodesToRemove = [...nodes];
 
       let result = nodesToRemove.find(
         ({ content }) => content === nodeToRemove.content
       );
+
+   
       if (result.count > 0) {
+        result.list_price = result.list_price - result.list_price/result.count;
         result.count--;
       } else {
         nodesToRemove = nodesToRemove.filter(
           ({ content }) => content !== nodeToRemove.content
         );
+       
       }
-      setNodes(nodesToRemove);
+     
+      
+      setNodesCount(schema.nodes.length);
     } else {
       setNodes([]);
     }
@@ -277,7 +286,7 @@ const UncontrolledDiagram = ({ types }) => {
     };
 
     addNode(nextNode);
-
+   
     let nodesToAdd = nodes;
     let nodesToRemove = nodesForCleanup;
 
@@ -286,14 +295,14 @@ const UncontrolledDiagram = ({ types }) => {
     );
     if (result) {
       result.count++;
-      result.price = result.count * +type.list_price;
+      result.list_price = result.count * (+type.list_price);
     } else {
       nodesToAdd.push({
         content: nextNode.content,
         count: 1,
         id: nextNode.id,
         productId: type.id,
-        price: +type.list_price,
+        list_price: +type.list_price,
       });
     }
 
@@ -302,11 +311,13 @@ const UncontrolledDiagram = ({ types }) => {
       count: 1,
       id: nextNode.id,
       productId: type.id,
-      price: +type.list_price,
+      list_price: +type.list_price,
     });
 
-    setNodes(nodesToAdd);
-    setNodesForCleanup(nodesToRemove);
+    setNodes([...nodesToAdd]);
+    setNodesForCleanup([...nodesToRemove]);
+    
+
 
     i++;
     //x = x + 100;
@@ -332,7 +343,7 @@ const UncontrolledDiagram = ({ types }) => {
     const token = getAuthToken();
     const sendBody = { products: schema.nodes };
 
-    console.log(projectArea.id);
+    
 
     const response = await fetch(
       "http://localhost:8000/prodsToAreas/" + projectArea.id,
@@ -413,7 +424,7 @@ const UncontrolledDiagram = ({ types }) => {
             </button>
           </div>
           {projectArea && (
-            <Button
+            <button
               color="primary"
               icon="plus"
               onClick={() => {
@@ -421,14 +432,14 @@ const UncontrolledDiagram = ({ types }) => {
               }}
             >
               Add new node
-            </Button>
+            </button>
           )}{" "}
           <br />
           {isAddClicked &&
             types &&
             types.types.map((type) => (
               <>
-                <Button
+                <button
                   color="primary"
                   icon="plus"
                   onClick={() => {
@@ -437,7 +448,7 @@ const UncontrolledDiagram = ({ types }) => {
                   }}
                 >
                   {type.name}
-                </Button>
+                </button>
                 <br />
               </>
             ))}
@@ -446,7 +457,7 @@ const UncontrolledDiagram = ({ types }) => {
             categories.length != 0 &&
             categories.map((category) => (
               <>
-                <Button
+                <button
                   color="primary"
                   icon="minus"
                   onClick={() => {
@@ -454,7 +465,7 @@ const UncontrolledDiagram = ({ types }) => {
                   }}
                 >
                   {category.name}
-                </Button>
+                </button>
                 <br />
               </>
             ))}
@@ -463,7 +474,7 @@ const UncontrolledDiagram = ({ types }) => {
             products.length != 0 &&
             products.map((product) => (
               <>
-                <Button
+                <button
                   color="primary"
                   icon="minus"
                   onClick={() => {
@@ -471,7 +482,7 @@ const UncontrolledDiagram = ({ types }) => {
                   }}
                 >
                   {product.name}
-                </Button>
+                </button>
                 <br />
               </>
             ))}
@@ -509,7 +520,7 @@ const UncontrolledDiagram = ({ types }) => {
           )}
         </div>
 
-        <Legend nodes={nodes} cleanNodes={onCleanNodes} saveArea={saveArea} />
+        <Legend nodes={nodes} cleanNodes={onCleanNodes} saveArea={saveArea} nodesCount={nodesCount}/>
       </div>
     </>
   );

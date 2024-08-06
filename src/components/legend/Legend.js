@@ -1,10 +1,22 @@
 import { Button } from "beautiful-react-ui";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-const Legend = ({ nodes, cleanNodes, saveArea }) => {
+const Legend = ({ nodes, cleanNodes, saveArea, nodesCount }) => {
   const [total, setTotal] = useState(0);
 
-  let curentTotal = 0
+
+  useEffect(() => {
+    console.log("useeffect");
+    let currTotal = 0
+
+    nodes.map(node => {
+
+      currTotal += +node.list_price;
+
+    })
+
+    setTotal(+currTotal);
+  }, [nodes, nodesCount]);
 
   const makeOffer = async () => {
     const sendBody = { offer: nodes };
@@ -25,20 +37,17 @@ const Legend = ({ nodes, cleanNodes, saveArea }) => {
   const save = async () => {
     saveArea();
   };
+
+
   return (
     <>
       <ul style={{ listStyleType: "no-bullets" }}>
         {" "}
         {nodes.map((node) => {
-          let color = "green";
 
-          
-          curentTotal += +node.price;
-          
-          // console.log(node.count !== 0);
           if (node.count !== 0)
             return (
-              <li>
+              <li key={node.id}>
                 <span
                   style={{ fontSize: "30px", color: node.id.split("-")[1] }}
                 >
@@ -48,7 +57,7 @@ const Legend = ({ nodes, cleanNodes, saveArea }) => {
               </li>
             );
         })}
-        <b style={{fontSize: "20px"}}>Total: {curentTotal} $</b>
+        <b style={{ fontSize: "20px" }}>Total: {total} $</b>
         {nodes.length !== 0 && (
           <div style={{ display: "flex" }}>
             <button
