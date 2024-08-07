@@ -43,13 +43,14 @@ const UncontrolledDiagram = ({ types }) => {
     nodes: [],
   });
 
-  console.log(modalOpen)
+  let intermediaryNodeArray = [];
 
   const [schema, { onChange, addNode, removeNode }] = useSchema(initalSchema);
 
   const [nodesCount, setNodesCount] = useState(schema.nodes.length);
 
   const myProducts = [];
+
 
   useEffect(() => {
 
@@ -172,10 +173,12 @@ const UncontrolledDiagram = ({ types }) => {
     const token = getAuthToken();
     const nodeToRemove = schema.nodes.find((node) => node.id === id);
 
+
+
     if (myProducts.length > 0) {
       const prodToRemove = myProducts.filter((prod) => prod.node_id === id);
 
-
+      console.log(prodToRemove[0].id);
 
       const response = await fetch(
         "http://localhost:8000/prodsToAreas/" + prodToRemove[0].id,
@@ -285,7 +288,13 @@ const UncontrolledDiagram = ({ types }) => {
       outputs: [{ id: `port-${i}` }],
     };
 
+    
+    intermediaryNodeArray.push(nextNode);
+    
+    
+
     addNode(nextNode);
+  
    
     let nodesToAdd = nodes;
     let nodesToRemove = nodesForCleanup;
@@ -317,7 +326,13 @@ const UncontrolledDiagram = ({ types }) => {
     setNodes([...nodesToAdd]);
     setNodesForCleanup([...nodesToRemove]);
     
-
+    console.log(oldNode);
+    console.log(nodes);
+    if(!oldNode){
+      
+      saveArea(true);
+    }
+ 
 
     i++;
     //x = x + 100;
@@ -339,14 +354,20 @@ const UncontrolledDiagram = ({ types }) => {
     setProjectArea(area);
   };
 
-  const saveArea = async () => {
+  const saveArea = async (notOldNode) => {
     const token = getAuthToken();
-    const sendBody = { products: schema.nodes };
+    let sendBody = { products: schema.nodes };
+    let sendAddress = "http://localhost:8000/prodsToAreas/" + projectArea.id;
+    if(notOldNode) {
+      console.log("notOldNode");
+      sendAddress = "http://localhost:8000/prodsToAreas/one/" + projectArea.id;
+      sendBody = {products: intermediaryNodeArray};
+    } else {console.log("oldNode")}
 
     
 
     const response = await fetch(
-      "http://localhost:8000/prodsToAreas/" + projectArea.id,
+      sendAddress,
       {
         method: "POST",
         headers: {
@@ -358,7 +379,27 @@ const UncontrolledDiagram = ({ types }) => {
     );
 
     let data = await response.json();
+    if(notOldNode) {
+      let j = myProducts.length;
+      let prod = {};
+      prod.id = data.product.id;
+      prod.color = data.product.node_id.split("-")[1];
+      prod.name = data.product.content.split("-")[1];
+      prod.x = data.product.orizontal;
+      prod.y = data.product.vertical;
+      prod.node_id = data.product.node_id;
+      prod.list_price=data.product.list_price;
+     
+      j = +prod.node_id.split("-")[2] + 1;
+      myProducts.push(prod);
+    }
+    console.log(data);
   };
+
+  const triggerChange =() => {
+    onChange(onChange)
+    saveArea();
+  }
 
   return (
     <>
@@ -496,7 +537,7 @@ const UncontrolledDiagram = ({ types }) => {
                 backgroundSize: "100% 100%",
               }}
               schema={schema}
-              onChange={onChange}
+              onChange={triggerChange}
             ></Diagram>
           )}
           {!projectArea && (
