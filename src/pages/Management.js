@@ -11,8 +11,11 @@ const ManagementPage = () => {
   const [products, setProducts] = useState([]);
   const types = loader() || [];
   const token = getAuthToken();
+  const [typeId, setTypeId] = useState(null);
+  const [categoryId, setCategoryId] = useState(null);
 
   const getCategoriesByTypeName = async (typeId, typeName) => {
+    setTypeId(typeId)
     const response = await fetch("http://localhost:8000/categories/" + typeId, {
       method: "GET",
       headers: {
@@ -68,6 +71,7 @@ const ManagementPage = () => {
               <TypeList
                 types={loadedTypes}
                 getCategoriesByTypeName={getCategoriesByTypeName}
+                setCategoryId={setCategoryId}
               />
             )}
           </Await>
@@ -79,11 +83,14 @@ const ManagementPage = () => {
           <CategoryList
             categories={categories}
             getProductsByCategoryName={getProductsByCategoryName}
+            typeId={typeId}
+            setCategoryId={setCategoryId}
+            categoryId={categoryId}
           />
         )}
       </div>
       <div style={{ flex: 1 }}>
-        {products && <ProductList products={products} />}
+        {products && <ProductList products={products} typeId={typeId} categoryId={categoryId} />}
       </div>
     </div>
   );
