@@ -94,7 +94,7 @@ const TypeList = ({ types, getCategoriesByTypeName, setCategoryId }) => {
       <ul style={{ listStyleType: "none" }}>
         {newTypes &&
           newTypes.map((type) => (
-            <li>
+            <li key={type.id}>
               <button
                 style={
                   +type.id === +selectedType

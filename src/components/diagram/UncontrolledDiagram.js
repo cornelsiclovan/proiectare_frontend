@@ -41,6 +41,8 @@ const UncontrolledDiagram = ({ types }) => {
       : null
   );
 
+  const [zoom, setZoom] = useState(100)
+
   const initalSchema = createSchema({
     nodes: [],
   });
@@ -171,7 +173,6 @@ const UncontrolledDiagram = ({ types }) => {
     if (myProducts.length > 0) {
       const prodToRemove = myProducts.filter((prod) => prod.node_id === id);
 
-      console.log(prodToRemove[0].id);
 
       const response = await fetch(
         "http://localhost:8000/prodsToAreas/" + prodToRemove[0].id,
@@ -318,8 +319,7 @@ const UncontrolledDiagram = ({ types }) => {
     setNodes([...nodesToAdd]);
     setNodesForCleanup([...nodesToRemove]);
 
-    console.log(oldNode);
-    console.log(nodes);
+ 
     if (!oldNode) {
       saveArea(true);
     }
@@ -349,11 +349,11 @@ const UncontrolledDiagram = ({ types }) => {
     let sendBody = { products: schema.nodes };
     let sendAddress = "http://localhost:8000/prodsToAreas/" + projectArea.id;
     if (notOldNode) {
-      console.log("notOldNode");
+     
       sendAddress = "http://localhost:8000/prodsToAreas/one/" + projectArea.id;
       sendBody = { products: intermediaryNodeArray };
     } else {
-      console.log("oldNode");
+      
     }
 
     const response = await fetch(sendAddress, {
@@ -389,6 +389,18 @@ const UncontrolledDiagram = ({ types }) => {
   };
 
   const isIpad = useMediaQuery("(max-width: 1300px)");
+
+  const addZoom = () => {
+    let myZoom = zoom + zoom/10;
+    setZoom(myZoom);
+  }
+
+  const substractZoom = () => {
+
+    let myZoom = zoom - zoom/10;
+    setZoom(myZoom);
+    console.log(myZoom);
+  }
 
   return (
     <>
@@ -453,6 +465,8 @@ const UncontrolledDiagram = ({ types }) => {
             >
               Load Project Area
             </button>
+            <button onClick={addZoom}>+</button>
+            <button onClick={substractZoom}>-</button>
           </div>
           {projectArea && (
             <button
@@ -520,22 +534,31 @@ const UncontrolledDiagram = ({ types }) => {
         </div>
         <div
           style={{
-            height : isIpad ? "40rem" : "70rem",
-            width: "100%",
-
-    
+            height: isIpad ? "40rem" : "70rem",
+            width: isIpad ? "100rem": "200rem",
+            //height: "1000px",
+           
+            overflow: "auto"
           }}
         >
           {projectArea && (
-            <Diagram
-              style={{
-                backgroundImage: `url("${`http://localhost:8000/${projectArea.image}`}")`,
-                backgroundRepeat: "no-repeat",
-                backgroundSize: "100% 100%",
-              }}
-              schema={schema}
-              onChange={triggerChange}
-            ></Diagram>
+              <Diagram
+                style={{
+                  backgroundImage: `url("${`http://localhost:8000/${projectArea.image}`}")`,
+                  backgroundRepeat: "no-repeat",
+                  //backgroundSize: "100% 100%",
+                  minWidth: "100%",
+                  minHeight: "100%",
+                  width: 2 * zoom + "%",
+                  height: 1.5* zoom + "%",
+                  //width: "1500px",
+                  zoom: zoom +"%",
+           
+                  //height: "500px"
+                }}
+                schema={schema}
+                onChange={triggerChange}
+              ></Diagram>
           )}
           {!projectArea && (
             <div
@@ -554,6 +577,7 @@ const UncontrolledDiagram = ({ types }) => {
               >
                 Load Project Area
               </button>
+              
             </div>
           )}
         </div>

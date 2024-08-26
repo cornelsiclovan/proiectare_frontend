@@ -25,6 +25,7 @@ const CategoryList = ({ categories, getProductsByCategoryName, typeId, setCatego
   const addCategory = async () => {
     const token = getAuthToken();
 
+
     const response = await fetch("http://localhost:8000/categories", {
       method: "POST",
       body: JSON.stringify({
@@ -92,7 +93,7 @@ const CategoryList = ({ categories, getProductsByCategoryName, typeId, setCatego
       <ul style={{ listStyleType: "none" }}>
         {myCategories &&
           myCategories.map((category) => (
-            <li>
+            <li key={category.id}>
               <button
                 style={
                   +category.id === +categoryId

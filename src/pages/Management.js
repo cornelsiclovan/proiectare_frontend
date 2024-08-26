@@ -15,7 +15,7 @@ const ManagementPage = () => {
   const [categoryId, setCategoryId] = useState(null);
 
   const getCategoriesByTypeName = async (typeId, typeName) => {
-    setTypeId(typeId)
+    setTypeId(typeId);
     const response = await fetch("http://localhost:8000/categories/" + typeId, {
       method: "GET",
       headers: {
@@ -62,6 +62,31 @@ const ManagementPage = () => {
     setProducts(data.products);
   };
 
+  const addProducts = async (file) => {
+    const token = getAuthToken();
+    const formData = new FormData();
+
+    formData.append("docs", file);
+
+    const response = await fetch("http://localhost:8000/products", {
+      method: "POST",
+      headers: {
+        Authorization: "Bearer " + token
+      },
+      body: formData
+    });
+
+
+    if(!response.ok) {
+      console.log(await response.json().message);
+
+    }else {
+      console.log(await response.json());
+    }
+
+    
+    return redirect("/management");
+  };
   return (
     <div style={{ display: "flex", justifyContent: "space-around" }}>
       <div style={{ flex: 1 }}>
@@ -90,7 +115,15 @@ const ManagementPage = () => {
         )}
       </div>
       <div style={{ flex: 1 }}>
-        {products && <ProductList products={products} typeId={typeId} categoryId={categoryId} />}
+        {products && (
+          <ProductList
+            products={products}
+            typeId={typeId}
+            categoryId={categoryId}
+            categories={categories}
+            addProducts={addProducts}
+          />
+        )}
       </div>
     </div>
   );
