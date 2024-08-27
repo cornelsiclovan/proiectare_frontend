@@ -5,6 +5,9 @@ const RecoverPasswordPage = () => {
   return <RecoverPasswordForm />;
 };
 
+const BASE_URL = process.env.REACT_APP_BASE_URL;
+
+
 export const action = async ({ request }) => {
   const data = await request.formData();
   const confirmPassword = {
@@ -13,7 +16,7 @@ export const action = async ({ request }) => {
     repeatPassword: data.get("repeatPassword")
   };
 
-  const response = await fetch("http://localhost:8000/new-password", {
+  const response = await fetch(`${BASE_URL}/new-password`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(confirmPassword),

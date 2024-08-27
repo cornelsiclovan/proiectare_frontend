@@ -12,10 +12,12 @@ const AreaList = ({ areas, setAreas, editArea }) => {
   const [myProject, setMyProject] = useState(null);
   const [areaId, setAreaId] = useState(null);
 
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
+
   const deleteArea = async (id) => {
     const token = getAuthToken();
 
-    const response = await fetch("http://localhost:8000/projects/area/" + id, {
+    const response = await fetch(`${BASE_URL}/projects/area/` + id, {
       method: "DELETE",
       headers: {
         Authorization: "Bearer " + token,

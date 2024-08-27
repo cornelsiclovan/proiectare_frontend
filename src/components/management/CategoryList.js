@@ -8,6 +8,8 @@ const CategoryList = ({ categories, getProductsByCategoryName, typeId, setCatego
   const [error, setError] = useState(null);
   const [myCategories, setMyCategories] = useState([]);
 
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
+
   useEffect(() => {
     setMyCategories([...categories]);
   }, [categories]);
@@ -26,7 +28,7 @@ const CategoryList = ({ categories, getProductsByCategoryName, typeId, setCatego
     const token = getAuthToken();
 
 
-    const response = await fetch("http://localhost:8000/categories", {
+    const response = await fetch(`${BASE_URL}/categories`, {
       method: "POST",
       body: JSON.stringify({
         name: categoryName,
@@ -53,7 +55,7 @@ const CategoryList = ({ categories, getProductsByCategoryName, typeId, setCatego
 
   const deleteCategoryHandler = async (id) => {
     const token = getAuthToken();
-    const response = await fetch("http://localhost:8000/categories/" + id, {
+    const response = await fetch(`${BASE_URL}/categories/` + id, {
       method: "DELETE",
       headers: {
         Authorization: "Bearer " + token,

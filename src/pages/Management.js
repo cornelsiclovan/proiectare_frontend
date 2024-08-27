@@ -6,6 +6,8 @@ import React, { useState } from "react";
 import CategoryList from "../components/management/CategoryList";
 import ProductList from "../components/management/ProductList";
 
+const BASE_URL = process.env.REACT_APP_BASE_URL;
+
 const ManagementPage = () => {
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
@@ -14,9 +16,11 @@ const ManagementPage = () => {
   const [typeId, setTypeId] = useState(null);
   const [categoryId, setCategoryId] = useState(null);
 
+
+
   const getCategoriesByTypeName = async (typeId, typeName) => {
     setTypeId(typeId);
-    const response = await fetch("http://localhost:8000/categories/" + typeId, {
+    const response = await fetch(`${BASE_URL}/categories/` + typeId, {
       method: "GET",
       headers: {
         Authorization: "Bearer " + token,
@@ -29,7 +33,7 @@ const ManagementPage = () => {
 
     if (data && data.categories && data.categories.length === 0) {
       const response = await fetch(
-        "http://localhost:8000/products?type=" + typeName,
+        `${BASE_URL}/products?type=` + typeName,
         {
           method: "GET",
           headers: {
@@ -48,7 +52,7 @@ const ManagementPage = () => {
 
   const getProductsByCategoryName = async (category) => {
     const response = await fetch(
-      "http://localhost:8000/products?category=" + category,
+      `${BASE_URL}/products?category=` + category,
       {
         method: "GET",
         headers: {
@@ -68,23 +72,20 @@ const ManagementPage = () => {
 
     formData.append("docs", file);
 
-    const response = await fetch("http://localhost:8000/products", {
+    const response = await fetch(`${BASE_URL}/products`, {
       method: "POST",
       headers: {
-        Authorization: "Bearer " + token
+        Authorization: "Bearer " + token,
       },
-      body: formData
+      body: formData,
     });
 
-
-    if(!response.ok) {
+    if (!response.ok) {
       console.log(await response.json().message);
-
-    }else {
+    } else {
       console.log(await response.json());
     }
 
-    
     return redirect("/management");
   };
   return (
@@ -132,7 +133,7 @@ const ManagementPage = () => {
 const loadTypes = async () => {
   const token = getAuthToken();
 
-  const response = await fetch("http://localhost:8000/types", {
+  const response = await fetch(`${BASE_URL}/types`, {
     method: "GET",
     headers: {
       Authorization: "Bearer " + token,

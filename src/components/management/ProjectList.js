@@ -21,6 +21,8 @@ const ProjectList = ({
   const [projectToEdit, setProjectToEdit] = useState(null);
   const [editProjectName, setEditProjectName] = useState("");
 
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
+
   const onAddAreaClick = (event) => {
     setAddNewArea(!addNewArea);
     setEditProject(false);
@@ -39,7 +41,7 @@ const ProjectList = ({
   const onAddClick = async () => {
     const token = getAuthToken();
 
-    const response = await fetch("http://localhost:8000/projects", {
+    const response = await fetch(`${BASE_URL}/projects`, {
       method: "POST",
       body: JSON.stringify({
         name: newProject,
@@ -69,7 +71,7 @@ const ProjectList = ({
     const token = getAuthToken();
 
     const response = await fetch(
-      "http://localhost:8000/projects/" + event.target.id,
+      `${BASE_URL}/projects/` + event.target.id,
       {
         method: "DELETE",
         headers: {
@@ -129,7 +131,7 @@ const ProjectList = ({
   const modifyProject = async () => {
     const token = getAuthToken();
 
-    const response = await fetch("http://localhost:8000/projects/" + projectToEdit, {
+    const response = await fetch(`${BASE_URL}/projects/` + projectToEdit, {
       method: "PATCH",
       body: JSON.stringify({
         name: editProjectName,

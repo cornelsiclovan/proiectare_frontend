@@ -8,6 +8,8 @@ const TypeList = ({ types, getCategoriesByTypeName, setCategoryId }) => {
   const [newTypes, setNewTypes] = useState(types ? types.types : []);
   const [error, setError] = useState(null);
 
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
+
   const onClickType = (event) => {
     getCategoriesByTypeName(event.target.value, event.target.innerText);
     setCategoryId(null);
@@ -23,7 +25,7 @@ const TypeList = ({ types, getCategoriesByTypeName, setCategoryId }) => {
     const token = getAuthToken();
     setError("");
 
-    const response = await fetch("http://localhost:8000/types", {
+    const response = await fetch(`${BASE_URL}/types`, {
       method: "POST",
       body: JSON.stringify({
         name: typeName,
@@ -52,7 +54,7 @@ const TypeList = ({ types, getCategoriesByTypeName, setCategoryId }) => {
 
   const deleteTypeHandler = async (id) => {
     const token = getAuthToken();
-    const response = await fetch("http://localhost:8000/types/" + id, {
+    const response = await fetch(`${BASE_URL}/types/` + id, {
       method: "DELETE",
       headers: {
         Authorization: "Bearer " + token,

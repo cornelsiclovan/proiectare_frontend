@@ -4,16 +4,22 @@ import { Await, json, redirect } from "react-router-dom";
 import { Suspense, useEffect, useState } from "react";
 import AreaList from "../components/management/AreaList";
 
+
+const BASE_URL = process.env.REACT_APP_BASE_URL;
+
 const ProjectsPage = () => {
   const projects = loader() || [];
   const token = getAuthToken();
   const [selectedProject, setSelectedProject] = useState(null);
   const [areas, setAreas] = useState([]);
   const [areaErrors, setAreaErrors] = useState("");
+
+
+
   useEffect(() => {
     const fetchAreas = async () => {
       const response = await fetch(
-        "http://localhost:8000/projects/" + selectedProject + "/areas",
+        `${BASE_URL}/projects/` + selectedProject + "/areas",
         {
           method: "GET",
           headers: {
@@ -37,7 +43,7 @@ const ProjectsPage = () => {
     formData.append("projectId", selectedProject);
     formData.append("map", map);
 
-    const response = await fetch("http://localhost:8000/projects/area", {
+    const response = await fetch(`${BASE_URL}/projects/area`, {
       method: "POST",
       headers: {
         Authorization: "Bearer " + token,
@@ -74,7 +80,7 @@ const ProjectsPage = () => {
       formData.append("map", map);
     }
 
-    const response = await fetch("http://localhost:8000/projects/area/"+areaID, {
+    const response = await fetch(`${BASE_URL}/projects/area/`+areaID, {
       method: "PATCH",
       headers: {
         Authorization: "Bearer " + token,
@@ -138,7 +144,7 @@ const ProjectsPage = () => {
 const loadProjects = async () => {
   const token = getAuthToken();
 
-  const response = await fetch("http://localhost:8000/projects", {
+  const response = await fetch(`${BASE_URL}/projects`, {
     method: "GET",
     headers: {
       Authorization: "Bearer " + token,

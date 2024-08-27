@@ -24,12 +24,14 @@ const DiagramLayout = () => {
 
 export default DiagramLayout;
 
+const BASE_URL = process.env.REACT_APP_BASE_URL;
+
 const loadTypes = async () => {
   const token = getAuthToken();
 
   
   
-  const response = await fetch("http://localhost:8000/types", {
+  const response = await fetch(`${BASE_URL}/types`, {
     method: "GET",
     headers: {
       Authorization: "Bearer " + token,

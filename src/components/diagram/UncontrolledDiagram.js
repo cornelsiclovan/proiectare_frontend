@@ -17,6 +17,8 @@ let i = 0;
 let x = 0;
 let y = 0;
 
+const BASE_URL = process.env.REACT_APP_BASE_URL;
+
 const UncontrolledDiagram = ({ types }) => {
   const navigate = useNavigate();
 
@@ -65,7 +67,7 @@ const UncontrolledDiagram = ({ types }) => {
       const token = getAuthToken();
 
       const response = await fetch(
-        "http://localhost:8000/prodsToAreas/" + workingAreaId,
+        `${BASE_URL}/prodsToAreas/` + workingAreaId,
         {
           method: "GET",
           headers: {
@@ -97,7 +99,7 @@ const UncontrolledDiagram = ({ types }) => {
       const token = getAuthToken();
       try {
         const response = await fetch(
-          "http://localhost:8000/areas/" + workingAreaId,
+          `${BASE_URL}/areas/` + workingAreaId,
           {
             method: "GET",
             headers: {
@@ -124,7 +126,7 @@ const UncontrolledDiagram = ({ types }) => {
     if (modalOpen && !selectedProject) {
       const fetchProjects = async () => {
         const token = getAuthToken();
-        const response = await fetch("http://localhost:8000/projects", {
+        const response = await fetch(`${BASE_URL}/projects`, {
           method: "GET",
           headers: {
             Authorization: "Bearer " + token,
@@ -140,7 +142,7 @@ const UncontrolledDiagram = ({ types }) => {
       const fetchAreas = async () => {
         const token = getAuthToken();
         const response = await fetch(
-          "http://localhost:8000/projects/" + selectedProject + "/areas",
+          `${BASE_URL}/projects/` + selectedProject + "/areas",
           {
             method: "GET",
             headers: {
@@ -175,7 +177,7 @@ const UncontrolledDiagram = ({ types }) => {
 
 
       const response = await fetch(
-        "http://localhost:8000/prodsToAreas/" + prodToRemove[0].id,
+        `${BASE_URL}/prodsToAreas/` + prodToRemove[0].id,
         {
           method: "DELETE",
           headers: {
@@ -222,7 +224,7 @@ const UncontrolledDiagram = ({ types }) => {
   const getCategoriesByType = async (type) => {
     const token = getAuthToken();
     const response = await fetch(
-      "http://localhost:8000/categories/" + type.id,
+      `${BASE_URL}/categories/` + type.id,
       {
         method: "GET",
         headers: {
@@ -236,7 +238,7 @@ const UncontrolledDiagram = ({ types }) => {
 
     if (data && data.categories && data.categories.length === 0) {
       const response = await fetch(
-        "http://localhost:8000/products?type=" + type.name,
+        `${BASE_URL}/products?type=` + type.name,
         {
           method: "GET",
           headers: {
@@ -253,7 +255,7 @@ const UncontrolledDiagram = ({ types }) => {
   const getProductsByCategory = async (category) => {
     const token = getAuthToken();
     const response = await fetch(
-      "http://localhost:8000/products?category=" + category.name,
+      `${BASE_URL}/products?category=` + category.name,
       {
         method: "GET",
         headers: {
@@ -347,10 +349,10 @@ const UncontrolledDiagram = ({ types }) => {
   const saveArea = async (notOldNode) => {
     const token = getAuthToken();
     let sendBody = { products: schema.nodes };
-    let sendAddress = "http://localhost:8000/prodsToAreas/" + projectArea.id;
+    let sendAddress = `${BASE_URL}/prodsToAreas/` + projectArea.id;
     if (notOldNode) {
      
-      sendAddress = "http://localhost:8000/prodsToAreas/one/" + projectArea.id;
+      sendAddress = `${BASE_URL}/prodsToAreas/one/` + projectArea.id;
       sendBody = { products: intermediaryNodeArray };
     } else {
       
@@ -448,7 +450,7 @@ const UncontrolledDiagram = ({ types }) => {
             </button>
           </ul>
           {projectArea && (
-            <img src={`http://localhost:8000/${projectArea.image}`}></img>
+            <img src={`${BASE_URL}/${projectArea.image}`}></img>
           )}
         </div>
       </Modal>
@@ -544,7 +546,7 @@ const UncontrolledDiagram = ({ types }) => {
           {projectArea && (
               <Diagram
                 style={{
-                  backgroundImage: `url("${`http://localhost:8000/${projectArea.image}`}")`,
+                  backgroundImage: `url("${`${BASE_URL}/${projectArea.image}`}")`,
                   backgroundRepeat: "no-repeat",
                   //backgroundSize: "100% 100%",
                   minWidth: "100%",

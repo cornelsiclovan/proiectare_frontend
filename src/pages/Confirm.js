@@ -6,7 +6,7 @@ const ConfirmPage = () => {
   return <ConfirmForm />;
 };
 
-
+const BASE_URL = process.env.REACT_APP_BASE_URL;
 
 export const action = async ({ request }) => {
   const data = await request.formData();
@@ -15,7 +15,7 @@ export const action = async ({ request }) => {
   };
 
   const response = await fetch(
-    "http://localhost:8000/confirm-account-registry",
+    `${BASE_URL}/confirm-account-registry`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

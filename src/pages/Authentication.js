@@ -6,6 +6,8 @@ const AuthenticationPage = () => {
   return <AuthForm />;
 };
 
+const BASE_URL = process.env.REACT_APP_BASE_URL;
+
 
 export const action = async ({ request }) => {
 
@@ -40,7 +42,7 @@ export const action = async ({ request }) => {
     };
   }
 
-  const response = await fetch("http://localhost:8000/" + mode, {
+  const response = await fetch(`${BASE_URL}/` + mode, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

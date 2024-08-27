@@ -8,6 +8,7 @@
     "@testing-library/user-event": "^13.5.0",
     "beautiful-react-diagrams": "^0.5.1",
     "beautiful-react-ui": "^0.57.1",
+    "dotenv": "^16.4.5",
     "konva": "^9.3.8",
     "nodemon": "^3.1.0",
     "react": "^18.3.1",

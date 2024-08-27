@@ -28,6 +28,7 @@ const ProductList = ({
   const [diam, setDiam] = useState("");
   const [price, setPrice] = useState("");
 
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   useEffect(() => {
     setMyProducts([...products]);
@@ -83,7 +84,7 @@ const ProductList = ({
     const token = getAuthToken();
 
     if (categoryId) {
-      const response = await fetch("http://localhost:8000/products/one", {
+      const response = await fetch(`${BASE_URL}/products/one`, {
         method: "POST",
         body: JSON.stringify({
           name: prodName,
@@ -109,7 +110,7 @@ const ProductList = ({
       }
     } else {
       if (categories.length === 0) {
-        const response = await fetch("http://localhost:8000/products/one", {
+        const response = await fetch(`${BASE_URL}/products/one`, {
           method: "POST",
           body: JSON.stringify({
             name: prodName,
@@ -140,7 +141,7 @@ const ProductList = ({
 
   const onDeleteProductHandler = async (id) => {
     const token = getAuthToken();
-    const response = await fetch("http://localhost:8000/products/" + id, {
+    const response = await fetch(`${BASE_URL}/products/` + id, {
       method: "DELETE",
       headers: {
         Authorization: "Bearer " + token,

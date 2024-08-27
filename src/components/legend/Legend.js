@@ -13,6 +13,7 @@ const Legend = ({
 }) => {
   const [total, setTotal] = useState(0);
   
+  const BASE_URL = process.env.REACT_APP_BASE_URL;
 
   const exportToExcel = (offerData) => {
     var csvString = "Echipament, Buc, Pret, Valoare";
@@ -57,7 +58,7 @@ const Legend = ({
     const token = getAuthToken();
 
     const response = await fetch(
-      "http://localhost:8000/prodsToAreas/project/" + selectedProject,
+      `http://${BASE_URL}/prodsToAreas/project/` + selectedProject,
       {
         method: "GET",
         headers: {
@@ -89,7 +90,7 @@ const Legend = ({
     exportToExcel(offerData);
     // const token = getAuthToken();
 
-    // const response = await fetch("http://localhost:8000/projects/offer", {
+    // const response = await fetch(`http://${BASE_URL}/projects/offer`, {
     //   method: "POST",
     //   headers: {
     //     "Content-Type": "application/json",
