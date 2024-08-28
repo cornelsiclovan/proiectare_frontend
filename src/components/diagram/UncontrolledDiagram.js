@@ -23,7 +23,7 @@ const UncontrolledDiagram = ({ types }) => {
   const navigate = useNavigate();
 
   const [showOffer, setShowOffer] = useState(false);
-  const [isAddClicked, setIsAddClicked] = useState(false);
+  const [isAddClicked, setIsAddClicked] = useState(true);
   const [nodes, setNodes] = useState([]);
   const [nodesForCleanup, setNodesForCleanup] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -43,7 +43,7 @@ const UncontrolledDiagram = ({ types }) => {
       : null
   );
 
-  const [zoom, setZoom] = useState(100)
+  const [zoom, setZoom] = useState(100);
 
   const initalSchema = createSchema({
     nodes: [],
@@ -98,15 +98,12 @@ const UncontrolledDiagram = ({ types }) => {
     const fetchArea = async () => {
       const token = getAuthToken();
       try {
-        const response = await fetch(
-          `${BASE_URL}/areas/` + workingAreaId,
-          {
-            method: "GET",
-            headers: {
-              Authorization: "Bearer " + token,
-            },
-          }
-        );
+        const response = await fetch(`${BASE_URL}/areas/` + workingAreaId, {
+          method: "GET",
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        });
         const data = await response.json();
 
         setProjectArea(data.area);
@@ -175,7 +172,6 @@ const UncontrolledDiagram = ({ types }) => {
     if (myProducts.length > 0) {
       const prodToRemove = myProducts.filter((prod) => prod.node_id === id);
 
-
       const response = await fetch(
         `${BASE_URL}/prodsToAreas/` + prodToRemove[0].id,
         {
@@ -223,29 +219,23 @@ const UncontrolledDiagram = ({ types }) => {
 
   const getCategoriesByType = async (type) => {
     const token = getAuthToken();
-    const response = await fetch(
-      `${BASE_URL}/categories/` + type.id,
-      {
-        method: "GET",
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      }
-    );
+    const response = await fetch(`${BASE_URL}/categories/` + type.id, {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    });
 
     const data = await response.json();
     setCategories(data.categories);
 
     if (data && data.categories && data.categories.length === 0) {
-      const response = await fetch(
-        `${BASE_URL}/products?type=` + type.name,
-        {
-          method: "GET",
-          headers: {
-            Authorization: "Bearer " + token,
-          },
-        }
-      );
+      const response = await fetch(`${BASE_URL}/products?type=` + type.name, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
 
       const data = await response.json();
       setProducts(data.products);
@@ -321,7 +311,6 @@ const UncontrolledDiagram = ({ types }) => {
     setNodes([...nodesToAdd]);
     setNodesForCleanup([...nodesToRemove]);
 
- 
     if (!oldNode) {
       saveArea(true);
     }
@@ -351,11 +340,9 @@ const UncontrolledDiagram = ({ types }) => {
     let sendBody = { products: schema.nodes };
     let sendAddress = `${BASE_URL}/prodsToAreas/` + projectArea.id;
     if (notOldNode) {
-     
       sendAddress = `${BASE_URL}/prodsToAreas/one/` + projectArea.id;
       sendBody = { products: intermediaryNodeArray };
     } else {
-      
     }
 
     const response = await fetch(sendAddress, {
@@ -393,16 +380,15 @@ const UncontrolledDiagram = ({ types }) => {
   const isIpad = useMediaQuery("(max-width: 1300px)");
 
   const addZoom = () => {
-    let myZoom = zoom + zoom/10;
+    let myZoom = zoom + zoom / 10;
     setZoom(myZoom);
-  }
+  };
 
   const substractZoom = () => {
-
-    let myZoom = zoom - zoom/10;
+    let myZoom = zoom - zoom / 10;
     setZoom(myZoom);
     console.log(myZoom);
-  }
+  };
 
   return (
     <>
@@ -449,9 +435,7 @@ const UncontrolledDiagram = ({ types }) => {
               ok
             </button>
           </ul>
-          {projectArea && (
-            <img src={`${BASE_URL}/${projectArea.image}`}></img>
-          )}
+          {projectArea && <img src={`${BASE_URL}/${projectArea.image}`}></img>}
         </div>
       </Modal>
       <div style={{ display: "flex" }}>
@@ -461,16 +445,40 @@ const UncontrolledDiagram = ({ types }) => {
               style={{
                 color: "white",
                 backgroundColor: "green",
-                margin: "10px",
+                margin: "10px 10px 5px 10px",
+                fontSize: "15px",
               }}
               onClick={loadProjectAreaHandler}
             >
               Load Project Area
             </button>
-            <button onClick={addZoom}>+</button>
-            <button onClick={substractZoom}>-</button>
+            <div>
+              <input type="text" style={{ marginBottom: "10px", marginLeft: "10px", marginRight: "10px", width: "150px" }} placeholder="Search..." />
+            </div>
+
+            <button
+              style={{
+                marginLeft: "10px",
+                border: "solid",
+                borderWidth: "thin",
+                marginBottom: "5px",
+              }}
+              onClick={addZoom}
+            >
+              +
+            </button>
+            <button
+              onClick={substractZoom}
+              style={{
+                marginLeft: "10px",
+                border: "solid",
+                borderWidth: "thin",
+              }}
+            >
+              -
+            </button>
           </div>
-          {projectArea && (
+          {/* {projectArea && (
             <button
               color="primary"
               icon="plus"
@@ -480,56 +488,120 @@ const UncontrolledDiagram = ({ types }) => {
             >
               Add new node
             </button>
-          )}{" "}
-          <br />
+          )}{" "} */}
+
           {isAddClicked &&
+            selectedProject &&
             types &&
             types.types.map((type) => (
               <>
                 <button
                   color="primary"
+                  style={{
+                    padding: "0px 5px 0px 5px",
+                    border: "solid",
+                    borderWidth: "thin",
+                    fontSize: "12px",
+                    marginBottom: "2px",
+                  }}
                   icon="plus"
                   onClick={() => {
                     //addNewNode(type.name);
                     getCategoriesByType(type);
                   }}
                 >
-                  {type.name}
+                  {type.name.slice(0, 20)}
                 </button>
-                <br />
-              </>
-            ))}
-          {isAddClicked &&
-            categories &&
-            categories.length != 0 &&
-            categories.map((category) => (
-              <>
-                <button
-                  color="primary"
-                  icon="minus"
-                  onClick={() => {
-                    getProductsByCategory(category);
-                  }}
-                >
-                  {category.name}
-                </button>
-                <br />
-              </>
-            ))}
-          {isAddClicked &&
-            products &&
-            products.length != 0 &&
-            products.map((product) => (
-              <>
-                <button
-                  color="primary"
-                  icon="minus"
-                  onClick={() => {
-                    addNewNode(product);
-                  }}
-                >
-                  {product.name}
-                </button>
+                {isAddClicked &&
+                  products &&
+                  products.length != 0 &&
+                  products.map((product) => {
+                    console.log(product);
+                    if (
+                      product.category_text === "no category" &&
+                      product.type_text === type.name
+                    ) {
+                      return (
+                        <div>
+                          <button
+                            color="primary"
+                            icon="minus"
+                            style={{
+                              padding: "0px",
+                              marginLeft: "20px",
+                              fontSize: "12px",
+                            }}
+                            onClick={() => {
+                              addNewNode(product);
+                            }}
+                          >
+                            {product.name.slice(0, 15)}
+                          </button>
+                          <br />
+                        </div>
+                      );
+                    }
+                  })}
+                {isAddClicked &&
+                  categories &&
+                  categories.length != 0 &&
+                  categories.map((category) => {
+                    console.log(category.TypeId);
+                    console.log(type.id);
+                    if (category.TypeId === type.id)
+                      return (
+                        <>
+                          <button
+                            color="primary"
+                            icon="minus"
+                            style={{
+                              marginLeft: "14px",
+                              padding: "0px",
+                              border: "solid",
+                              borderWidth: "thin",
+                              fontSize: "12px",
+                            }}
+                            onClick={() => {
+                              getProductsByCategory(category);
+                            }}
+                          >
+                            {category.name}
+                          </button>
+                          <br />
+                          {isAddClicked &&
+                            products &&
+                            products.length != 0 &&
+                            products.map((product) => {
+                              console.log(product);
+                              if (
+                                product.category_text === category.name ||
+                                (product.category_text === "no category" &&
+                                  product.type_text === type.name)
+                              ) {
+                                return (
+                                  <>
+                                    <button
+                                      color="primary"
+                                      icon="minus"
+                                      style={{
+                                        padding: "0px",
+                                        fontSize: "12px",
+                                        marginLeft: "20px",
+                                      }}
+                                      onClick={() => {
+                                        addNewNode(product);
+                                      }}
+                                    >
+                                      {product.name.slice(0, 15)}
+                                    </button>
+                                    <br />
+                                  </>
+                                );
+                              }
+                            })}
+                        </>
+                      );
+                  })}
                 <br />
               </>
             ))}
@@ -537,30 +609,30 @@ const UncontrolledDiagram = ({ types }) => {
         <div
           style={{
             height: isIpad ? "40rem" : "70rem",
-            width: isIpad ? "100rem": "200rem",
+            width: isIpad ? "100rem" : "200rem",
             //height: "1000px",
-           
-            overflow: "auto"
+
+            overflow: "auto",
           }}
         >
           {projectArea && (
-              <Diagram
-                style={{
-                  backgroundImage: `url("${`${BASE_URL}/${projectArea.image}`}")`,
-                  backgroundRepeat: "no-repeat",
-                  //backgroundSize: "100% 100%",
-                  minWidth: "100%",
-                  minHeight: "100%",
-                  width: 2 * zoom + "%",
-                  height: 1.5* zoom + "%",
-                  //width: "1500px",
-                  zoom: zoom +"%",
-           
-                  //height: "500px"
-                }}
-                schema={schema}
-                onChange={triggerChange}
-              ></Diagram>
+            <Diagram
+              style={{
+                backgroundImage: `url("${`${BASE_URL}/${projectArea.image}`}")`,
+                backgroundRepeat: "no-repeat",
+                //backgroundSize: "100% 100%",
+                minWidth: "100%",
+                minHeight: "100%",
+                width: 2 * zoom + "%",
+                height: 1.5 * zoom + "%",
+                //width: "1500px",
+                zoom: zoom + "%",
+
+                //height: "500px"
+              }}
+              schema={schema}
+              onChange={triggerChange}
+            ></Diagram>
           )}
           {!projectArea && (
             <div
@@ -579,7 +651,6 @@ const UncontrolledDiagram = ({ types }) => {
               >
                 Load Project Area
               </button>
-              
             </div>
           )}
         </div>
