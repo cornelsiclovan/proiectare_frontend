@@ -43,7 +43,6 @@ const Legend = ({
   };
 
   useEffect(() => {
-    console.log("useeffect");
     let currTotal = 0;
 
     nodes.map((node) => {
@@ -66,10 +65,7 @@ const Legend = ({
         },
       }
     );
-
     const data = await response.json();
-    console.log(data);
-
     let offerData = [];
 
     data.productsInProject.map((prod) => {

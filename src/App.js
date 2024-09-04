@@ -3,6 +3,7 @@ import "beautiful-react-diagrams/styles.css";
 import React, { useEffect, useState } from "react";
 import { Button } from "beautiful-react-ui";
 
+
 import UncontrolledDiagram from "./components/diagram/UncontrolledDiagram";
 import Legend from "./components/legend/Legend";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";

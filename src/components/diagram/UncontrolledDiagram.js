@@ -45,6 +45,7 @@ const UncontrolledDiagram = ({ types }) => {
 
   const [zoom, setZoom] = useState(100);
 
+
   const initalSchema = createSchema({
     nodes: [],
   });
@@ -97,6 +98,7 @@ const UncontrolledDiagram = ({ types }) => {
 
     const fetchArea = async () => {
       const token = getAuthToken();
+
       try {
         const response = await fetch(`${BASE_URL}/areas/` + workingAreaId, {
           method: "GET",
@@ -267,12 +269,19 @@ const UncontrolledDiagram = ({ types }) => {
     if (oldNode) {
       node_identifier = type.node_id;
     }
+
+
+
     const nextNode = {
       id: node_identifier,
       content: `${type.id}-${type.name}`,
       coordinates: [coordX, coordY],
       render: CustomRender,
-      data: { onClick: deleteNodeFromSchema },
+      data: {
+        onClick: deleteNodeFromSchema,
+        triggerChange: triggerChange,
+        coordinates: [coordX, coordY],
+      },
       inputs: [{ id: `port-${i}` }],
       outputs: [{ id: `port-${i}` }],
     };
@@ -312,7 +321,7 @@ const UncontrolledDiagram = ({ types }) => {
     setNodesForCleanup([...nodesToRemove]);
 
     if (!oldNode) {
-      saveArea(true);
+      saveArea(true, false);
     }
 
     i++;
@@ -335,12 +344,23 @@ const UncontrolledDiagram = ({ types }) => {
     setProjectArea(area);
   };
 
-  const saveArea = async (notOldNode) => {
+  const saveArea = async (notOldNode, touch) => {
+    let myId = localStorage.getItem("workingAreaId");
+    if (projectArea) {
+      myId = projectArea.id;
+    }
+
+    if (touch === true)
+      schema.nodes.map((node) => {
+        node.coordinates = node.data.coordinates;
+      });
+
     const token = getAuthToken();
+    
     let sendBody = { products: schema.nodes };
-    let sendAddress = `${BASE_URL}/prodsToAreas/` + projectArea.id;
+    let sendAddress = `${BASE_URL}/prodsToAreas/` + myId + "?touch=" + touch;
     if (notOldNode) {
-      sendAddress = `${BASE_URL}/prodsToAreas/one/` + projectArea.id;
+      sendAddress = `${BASE_URL}/prodsToAreas/one/` + myId;
       sendBody = { products: intermediaryNodeArray };
     } else {
     }
@@ -369,12 +389,11 @@ const UncontrolledDiagram = ({ types }) => {
       j = +prod.node_id.split("-")[2] + 1;
       myProducts.push(prod);
     }
-    console.log(data);
   };
 
-  const triggerChange = () => {
+  const triggerChange = (touch = false) => {
     onChange(onChange);
-    saveArea();
+    saveArea(false, touch);
   };
 
   const isIpad = useMediaQuery("(max-width: 1300px)");
@@ -387,11 +406,15 @@ const UncontrolledDiagram = ({ types }) => {
   const substractZoom = () => {
     let myZoom = zoom - zoom / 10;
     setZoom(myZoom);
-    console.log(myZoom);
   };
 
   return (
     <>
+      {projectArea && (
+        <h1>
+          {projectArea.name}, {projectArea.id}
+        </h1>
+      )}
       <Modal isOpen={modalOpen} onRequestClose={closeModal}>
         {" "}
         <button style={{ backgroundColor: "red" }} onClick={closeModal}>
@@ -404,6 +427,7 @@ const UncontrolledDiagram = ({ types }) => {
               projects.map((project) => (
                 <li>
                   <button
+                    key={project.id}
                     onClick={() => {
                       setSelectedProject(project.id);
                       localStorage.setItem("selectedProject", project.id);
@@ -418,6 +442,7 @@ const UncontrolledDiagram = ({ types }) => {
               projectAreas.map((pa) => (
                 <li>
                   <button
+                    key={pa.id}
                     onClick={() => {
                       selectArea(pa);
                     }}
@@ -453,7 +478,16 @@ const UncontrolledDiagram = ({ types }) => {
               Load Project Area
             </button>
             <div>
-              <input type="text" style={{ marginBottom: "10px", marginLeft: "10px", marginRight: "10px", width: "150px" }} placeholder="Search..." />
+              <input
+                type="text"
+                style={{
+                  marginBottom: "10px",
+                  marginLeft: "10px",
+                  marginRight: "10px",
+                  width: "150px",
+                }}
+                placeholder="Search..."
+              />
             </div>
 
             <button
@@ -496,6 +530,7 @@ const UncontrolledDiagram = ({ types }) => {
             types.types.map((type) => (
               <>
                 <button
+                  key={type.id}
                   color="primary"
                   style={{
                     padding: "0px 5px 0px 5px",
@@ -516,7 +551,6 @@ const UncontrolledDiagram = ({ types }) => {
                   products &&
                   products.length != 0 &&
                   products.map((product) => {
-                    console.log(product);
                     if (
                       product.category_text === "no category" &&
                       product.type_text === type.name
@@ -524,6 +558,7 @@ const UncontrolledDiagram = ({ types }) => {
                       return (
                         <div>
                           <button
+                            key={product.id}
                             color="primary"
                             icon="minus"
                             style={{
@@ -546,14 +581,13 @@ const UncontrolledDiagram = ({ types }) => {
                   categories &&
                   categories.length != 0 &&
                   categories.map((category) => {
-                    console.log(category.TypeId);
-                    console.log(type.id);
                     if (category.TypeId === type.id)
                       return (
                         <>
                           <button
                             color="primary"
                             icon="minus"
+                            key={category.id}
                             style={{
                               marginLeft: "14px",
                               padding: "0px",
@@ -572,7 +606,6 @@ const UncontrolledDiagram = ({ types }) => {
                             products &&
                             products.length != 0 &&
                             products.map((product) => {
-                              console.log(product);
                               if (
                                 product.category_text === category.name ||
                                 (product.category_text === "no category" &&
@@ -581,6 +614,7 @@ const UncontrolledDiagram = ({ types }) => {
                                 return (
                                   <>
                                     <button
+                                      key={product.id}
                                       color="primary"
                                       icon="minus"
                                       style={{
@@ -617,6 +651,7 @@ const UncontrolledDiagram = ({ types }) => {
         >
           {projectArea && (
             <Diagram
+              id="myDiagram"
               style={{
                 backgroundImage: `url("${`${BASE_URL}/${projectArea.image}`}")`,
                 backgroundRepeat: "no-repeat",
