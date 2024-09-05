@@ -45,7 +45,6 @@ const UncontrolledDiagram = ({ types }) => {
 
   const [zoom, setZoom] = useState(100);
 
-
   const initalSchema = createSchema({
     nodes: [],
   });
@@ -122,6 +121,7 @@ const UncontrolledDiagram = ({ types }) => {
   }, [workingAreaId]);
 
   useEffect(() => {
+
     if (modalOpen && !selectedProject) {
       const fetchProjects = async () => {
         const token = getAuthToken();
@@ -262,15 +262,19 @@ const UncontrolledDiagram = ({ types }) => {
   };
 
   const addNewNode = (type, oldNode) => {
-    let coordX = type.x || x + 100;
+    let coordX;
+
+    if (type.x === 0) {
+      coordX = type.x;
+    } else {
+      coordX = type.x || x + 100;
+    }
     let coordY = type.y || y;
     let node_identifier = `node -${type.color}-${i}`;
 
     if (oldNode) {
       node_identifier = type.node_id;
     }
-
-
 
     const nextNode = {
       id: node_identifier,
@@ -356,7 +360,7 @@ const UncontrolledDiagram = ({ types }) => {
       });
 
     const token = getAuthToken();
-    
+
     let sendBody = { products: schema.nodes };
     let sendAddress = `${BASE_URL}/prodsToAreas/` + myId + "?touch=" + touch;
     if (notOldNode) {
@@ -409,12 +413,10 @@ const UncontrolledDiagram = ({ types }) => {
   };
 
   return (
-    <>
-      {projectArea && (
-        <h1>
-          {projectArea.name}, {projectArea.id}
-        </h1>
-      )}
+    <> 
+      {projectArea && <b style={{marginLeft: "10px"}}> {projectArea.name} - </b>}
+      {localStorage.getItem("selectedPrjName") &&
+        <b>{localStorage.getItem("selectedPrjName")}</b>}
       <Modal isOpen={modalOpen} onRequestClose={closeModal}>
         {" "}
         <button style={{ backgroundColor: "red" }} onClick={closeModal}>
@@ -431,6 +433,7 @@ const UncontrolledDiagram = ({ types }) => {
                     onClick={() => {
                       setSelectedProject(project.id);
                       localStorage.setItem("selectedProject", project.id);
+                      localStorage.setItem("selectedPrjName", project.name);
                     }}
                   >
                     {project.name}
@@ -658,14 +661,14 @@ const UncontrolledDiagram = ({ types }) => {
                 //backgroundSize: "100% 100%",
                 minWidth: "100%",
                 minHeight: "100%",
-                width: 2 * zoom + "%",
-                height: 1.5 * zoom + "%",
+                width: isIpad ? 4 * zoom + "%" : 2 * zoom + "%",
+                height: isIpad ? 2 * zoom + "%" : 1.5 * zoom + "%",
                 //width: "1500px",
                 zoom: zoom + "%",
 
                 //height: "500px"
               }}
-              schema={schema}
+              schema={!modalOpen && schema}
               onChange={triggerChange}
             ></Diagram>
           )}

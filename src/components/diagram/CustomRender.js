@@ -73,10 +73,21 @@ const CustomRender = ({ id, content, data, inputs, outputs }) => {
 
         const touch = e.touches[0];
         
-        const dx = (touch.clientX - 170 + scrollX)/zoom;
-        const dy = (touch.clientY - 185 + scrollY)/zoom;; 
+        let touchX = touch.clientX
+
+        if(touchX  - 170 < 0) {
+          touchX = 170;
+        }
+
+        let dx = (touchX - 170 + scrollX)/zoom;
+        let dy = (touch.clientY - 185 + scrollY)/zoom;; 
 
         //ele.style.transform = `translate(${dx}px, ${dy}px)`;
+
+        // console.log(dx, dy);
+
+        if(dy < 0) {dy = 0}
+        // if(dx < 0) {dx = 0}
 
         data.coordinates = [dx, dy];
 
