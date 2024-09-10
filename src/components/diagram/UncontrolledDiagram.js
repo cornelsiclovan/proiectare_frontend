@@ -261,6 +261,23 @@ const UncontrolledDiagram = ({ types }) => {
     setProducts(data.products);
   };
 
+  const getProductsByName = async (name) => {
+    const token = getAuthToken();
+
+    console.log("test");
+    const response = await fetch(
+      `${BASE_URL}/products?name=` + name,
+      {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      }
+    )
+    const data = await response.json();
+    setProducts(data.products);
+  }
+
   const addNewNode = (type, oldNode) => {
     let coordX;
 
@@ -412,12 +429,17 @@ const UncontrolledDiagram = ({ types }) => {
     setZoom(myZoom);
   };
 
+  const onSearchType = (e) => {
+  
+    getProductsByName(e.target.value);
+  }
+
   return (
     <> 
       {projectArea && <b style={{marginLeft: "10px"}}> {projectArea.name} - </b>}
       {localStorage.getItem("selectedPrjName") &&
         <b>{localStorage.getItem("selectedPrjName")}</b>}
-      <Modal isOpen={modalOpen} onRequestClose={closeModal}>
+      <Modal isOpen={modalOpen} onRequestClose={closeModal} ariaHideApp={false}>
         {" "}
         <button style={{ backgroundColor: "red" }} onClick={closeModal}>
           x
@@ -490,6 +512,7 @@ const UncontrolledDiagram = ({ types }) => {
                   width: "150px",
                 }}
                 placeholder="Search..."
+                onChange={onSearchType}
               />
             </div>
 
